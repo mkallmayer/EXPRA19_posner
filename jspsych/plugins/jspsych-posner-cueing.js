@@ -26,32 +26,45 @@ jsPsych.plugins["posner-cueing"] = (function() {
 
   plugin.trial = function(display_element, trial) {
 
-    display_element.innerHTML = ''; // clear the screen
+    var left = document.createElement("div");
+    left.style.position = "absolute";
+    left.style.left = "10%";
+    left.style.top = "50%";
 
-    var stims = {
-      left: new Image(),
-      right: new Image(),
-      cent: new Image()
+    var right = document.createElement("div");
+    right.style.position = "absolute";
+    right.style.left = "90%";
+    right.style.top = "50%";
+
+    var center = document.createElement("div");
+    center.style.position = "absolute";
+    center.style.left = "50%";
+    center.style.top = "50%";
+
+    var divs = {
+      0: left,
+      1: center,
+      2: right
+    }
+
+    var targets = {
+      0: "left",
+      1: "right"
     };
 
     var timing = {
       // all in ms
-      cue_onset: 1000,
       cue_visible: 50,
       cue_off_target_on_intervall: 600
-    };
-
-    var positions = {
-      // all in px
-      left_x: window.innerWidth / 5,
-      mid_x: window.innerWidth / 2,
-      right_x: window.innerWidth - (window.innerWidth / 5),
-      y: window.innerHeight / 2
     };
 
     // body (background)
     var body = document.getElementsByClassName("jspsych-display-element")[0];
     //body.style.backgroundColor = "grey";
+
+    body.appendChild(left);
+    body.appendChild(center);
+    body.appendChild(right);
 
     // canvas
     var canvas = document.createElement("canvas");
@@ -62,16 +75,13 @@ jsPsych.plugins["posner-cueing"] = (function() {
     // context
     var ctx = canvas.getContext("2d");
 
-    // draw fixation cross
-    ctx.font = "50pt Arial";
-    ctx.fillStyle = "white";
-    ctx.textAlign = "center";
-
-    var draw = function(stim, x, y) {
-      display_element.innerHTML = "<img class='jspsych-same-different-stimulus' src='jspsych/img_"+stim+".png'></img>"
+    var draw = function(stim) {
+      center.innerHTML = "<img class='center' src='jspsych/img_"+stim+".png'></img>"
     }
 
-    draw("left", 100, 100);
+    draw(targets[1]);
+
+    console.log(trial.cue_duration);
 
     jsPsych.pluginAPI.setTimeout(function() {
       end_trial();
@@ -83,6 +93,11 @@ jsPsych.plugins["posner-cueing"] = (function() {
     };
 
     var end_trial = function(){
+      // clear everything
+      for (i in [0, 1, 2]){
+        divs[i].innerHTML = "";
+      }
+
       // end trial
       jsPsych.finishTrial(trial_data);
     };
