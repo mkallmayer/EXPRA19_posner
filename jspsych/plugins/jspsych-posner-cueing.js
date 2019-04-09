@@ -22,8 +22,12 @@ jsPsych.plugins["posner-cueing"] = (function() {
         default: 32
       },
       cue_duration: {
-        type: jsPsych.plugins.parameterType.INT,
+        type: jsPsych.plugins.parameterType.INT,  // ms
         default: 50
+      },
+      cue_off_target_on_interval: {
+        type: jsPsych.plugins.parameterType.INT,  // ms
+        default: 600
       }
     }
   }
@@ -57,12 +61,6 @@ jsPsych.plugins["posner-cueing"] = (function() {
       2: "img_cent.png"
     };
 
-    var timing = {
-      // all in ms
-      cue_visible: 50,
-      cue_off_target_on_intervall: 600
-    };
-
     // body (background)
     var body = document.getElementsByClassName("jspsych-display-element")[0];
     //body.style.backgroundColor = "grey";
@@ -80,7 +78,17 @@ jsPsych.plugins["posner-cueing"] = (function() {
     // context
     var ctx = canvas.getContext("2d");
 
-    var draw = function() {
+    var wait_drawTarget = function() {
+      // draws target after time period set in timing.cue_off_target_on_interval and starts watching for keyboard response
+      
+      jsPsych.pluginAPI.setTimeout(function() {
+        divs[2*trial.target_loc].innerHTML = "<img class='center' src='jspsych/target.png'></img>";
+        // start response thingy
+      }, trial.cue_off_target_on_interval);
+    }
+
+    var drawCue = function() {
+      // draws cue and removes it after time period set in trial.cue_duration
       if (trial.condition == 0){
         stim_file = target_file[trial.target_loc];
       }
@@ -92,13 +100,14 @@ jsPsych.plugins["posner-cueing"] = (function() {
       }
 
       center.innerHTML = "<img class='center' src='jspsych/"+stim_file+"'></img>";
+
+      jsPsych.pluginAPI.setTimeout(function() {
+        center.innerHTML = "";
+        wait_drawTarget();
+      }, trial.cue_duration);
     }
-
-    draw();
-
-    jsPsych.pluginAPI.setTimeout(function() {
-      end_trial();
-    }, trial.cue_duration);
+    
+    drawCue();
 
     // data saving
     var trial_data = {
