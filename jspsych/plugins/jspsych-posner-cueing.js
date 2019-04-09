@@ -13,6 +13,10 @@ jsPsych.plugins["posner-cueing"] = (function() {
         type: jsPsych.plugins.parameterType.INT, // 0 valid 1 invalid 2 neutral
         default: undefined
       },
+      target_loc: {
+        type: jsPsych.plugins.parameterType.INT,  // 0 left 1 right
+        default: undefined
+      },
       detectedKey: {
         type: jsPsych.plugins.parameterType.INT,
         default: 32
@@ -47,9 +51,10 @@ jsPsych.plugins["posner-cueing"] = (function() {
       2: right
     }
 
-    var targets = {
-      0: "left",
-      1: "right"
+    var target_file = {
+      0: "img_left.png",
+      1: "img_right.png",
+      2: "img_cent.png"
     };
 
     var timing = {
@@ -75,13 +80,21 @@ jsPsych.plugins["posner-cueing"] = (function() {
     // context
     var ctx = canvas.getContext("2d");
 
-    var draw = function(stim) {
-      center.innerHTML = "<img class='center' src='jspsych/img_"+stim+".png'></img>"
+    var draw = function() {
+      if (trial.condition == 0){
+        stim_file = target_file[trial.target_loc];
+      }
+      else if (trial.condition == 1){
+        stim_file = target_file[(trial.target_loc + 1) % 2];
+      }
+      else {
+        stim_file = target_file[2];
+      }
+
+      center.innerHTML = "<img class='center' src='jspsych/"+stim_file+"'></img>";
     }
 
-    draw(targets[1]);
-
-    console.log(trial.cue_duration);
+    draw();
 
     jsPsych.pluginAPI.setTimeout(function() {
       end_trial();
