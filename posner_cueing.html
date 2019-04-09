@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>Posner Cueing Paradigm</title>
+        <script src="jspsych/jspsych.js"></script>
+        <script src="jspsych/plugins/jspsych-posner-cueing.js"></script>
+        <link href="jspsych/css/jspsych.css" rel="stylesheet" type="text/css"></link>
+    </head>
+    <body></body>
+
+    <script>
+    
+    var timeline = [];
+
+    timeline.push(
+        trial = {
+            type: "posner-cueing"
+        }
+    )
+
+    jsPsych.init({
+        timeline: timeline,
+        //on_trial_start: jsPsych.pauseExperiment(),
+        on_trial_finish: function(){
+            setTimeout(jsPsych.resumeExperiment, 200);
+        }
+
+    });
+
+    </script>
+
+</html>
