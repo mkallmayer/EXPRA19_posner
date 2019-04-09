@@ -24,6 +24,19 @@ jsPsych.plugins["posner-cueing"] = (function() {
 
     display_element.innerHTML = ''; // clear the screen
 
+    var stims = {
+      left: new Image(),
+      right: new Image(),
+      cent: new Image()
+    };
+
+    stims.left.src = 'jspsych/img_left.png';
+    stims.right.src = 'jspsych/img_right.png';
+    stims.cent.src = 'jspsych/img_cent.png';
+    stims.left.alt = 'alt';
+    stims.right.alt = 'alt';
+    stims.cent.alt = 'alt';
+
     var timing = {
       // all in ms
       cue_onset: 1000,
@@ -41,7 +54,7 @@ jsPsych.plugins["posner-cueing"] = (function() {
 
     // body (background)
     var body = document.getElementsByClassName("jspsych-display-element")[0];
-    body.style.backgroundColor = "grey";
+    //body.style.backgroundColor = "grey";
 
     // canvas
     var canvas = document.createElement("canvas");
@@ -57,11 +70,13 @@ jsPsych.plugins["posner-cueing"] = (function() {
     ctx.fillStyle = "white";
     ctx.textAlign = "center";
 
-    ctx.fillText("+", positions.mid_x, positions.y);
-
-    function draw(img, x, y) {
-      
+    var draw = function(img, x, y) {
+      display_element.innerHTML = "<img class='jspsych-same-different-stimulus' src='jspsych/img_left.png'></img>"
     }
+
+    console.log(stims.left);
+
+    draw("abc", 100, 100);
 
     // data saving
     var trial_data = {
