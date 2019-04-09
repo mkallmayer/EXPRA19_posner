@@ -16,6 +16,10 @@ jsPsych.plugins["posner-cueing"] = (function() {
       detectedKey: {
         type: jsPsych.plugins.parameterType.INT,
         default: 32
+      },
+      cue_duration: {
+        type: jsPsych.plugins.parameterType.INT,
+        default: 50
       }
     }
   }
@@ -29,13 +33,6 @@ jsPsych.plugins["posner-cueing"] = (function() {
       right: new Image(),
       cent: new Image()
     };
-
-    stims.left.src = 'jspsych/img_left.png';
-    stims.right.src = 'jspsych/img_right.png';
-    stims.cent.src = 'jspsych/img_cent.png';
-    stims.left.alt = 'alt';
-    stims.right.alt = 'alt';
-    stims.cent.alt = 'alt';
 
     var timing = {
       // all in ms
@@ -70,21 +67,26 @@ jsPsych.plugins["posner-cueing"] = (function() {
     ctx.fillStyle = "white";
     ctx.textAlign = "center";
 
-    var draw = function(img, x, y) {
-      display_element.innerHTML = "<img class='jspsych-same-different-stimulus' src='jspsych/img_left.png'></img>"
+    var draw = function(stim, x, y) {
+      display_element.innerHTML = "<img class='jspsych-same-different-stimulus' src='jspsych/img_"+stim+".png'></img>"
     }
 
-    console.log(stims.left);
+    draw("left", 100, 100);
 
-    draw("abc", 100, 100);
+    jsPsych.pluginAPI.setTimeout(function() {
+      end_trial();
+    }, trial.cue_duration);
 
     // data saving
     var trial_data = {
       rt: -1
     };
 
-    // end trial
-    jsPsych.finishTrial(trial_data);
+    var end_trial = function(){
+      // end trial
+      jsPsych.finishTrial(trial_data);
+    };
+  
   };
 
   return plugin;
