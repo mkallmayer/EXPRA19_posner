@@ -41,25 +41,15 @@ jsPsych.plugins["posner-cueing"] = (function() {
       2: "img_cent.png"
     };
 
-    // body (background)
-    var body = document.getElementsByClassName("jspsych-display-element")[0];
-    //body.style.backgroundColor = "grey";
-
-    // canvas
-    var canvas = document.createElement("canvas");
-    display_element.appendChild(canvas);
-    canvas.width = window.innerWidth; // no-scrollbar workaround
-    canvas.height = window.innerHeight; // no-scrollbar workaround
-
     // create divs in which to draw stims in (positioning)
     var divs = {};
     factors = [1/10, 1/2, 9/10];
     for (i in [0, 1, 2]){
       divs[i] = document.createElement("div");
-      divs[i].style.left = (factors[i] * canvas.width - stims.width / 2) + "px";
+      divs[i].style.left = (factors[i] * window.innerWidth - stims.width / 2) + "px";
       divs[i].style.position = "absolute";
-      divs[i].style.top = ((canvas.height / 2) - (stims.height / 2))+ "px";
-      body.appendChild(divs[i]);
+      divs[i].style.top = ((window.innerHeight / 2) - (stims.height / 2))+ "px";
+      display_element.appendChild(divs[i]);
     }
 
     var wait_drawTarget = function() {
