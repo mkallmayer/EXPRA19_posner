@@ -17,10 +17,6 @@ jsPsych.plugins["posner-cueing"] = (function() {
         type: jsPsych.plugins.parameterType.INT,  // 0 left 1 right
         default: undefined
       },
-      detectedKey: {
-        type: jsPsych.plugins.parameterType.INT,
-        default: 32
-      },
       cue_duration: {
         type: jsPsych.plugins.parameterType.INT,  // ms
         default: 50
@@ -55,46 +51,16 @@ jsPsych.plugins["posner-cueing"] = (function() {
     canvas.width = window.innerWidth; // no-scrollbar workaround
     canvas.height = window.innerHeight; // no-scrollbar workaround
 
-    // create divs for which to draw stims in
-    var left = document.createElement("div");
-    left.style.position = "absolute";
-    left.style.left = ((canvas.width / 10) - (stims.width / 2))+ "px";
-    left.style.top = ((canvas.height / 2) - (stims.height / 2))+ "px";
-    left.style.width = stims.width + "px"
-    left.style.height = stims.height + "px"
-    left.style.background = "black"
-
-    var right = document.createElement("div");
-    right.style.position = "absolute";
-    right.style.left = ((9 * canvas.width / 10) - (stims.width / 2))+ "px";
-    right.style.top = ((canvas.height / 2) - (stims.height / 2))+ "px";
-    right.style.width = stims.width + "px"
-    right.style.height = stims.height + "px"
-    right.style.background = "black"
-
-    var center = document.createElement("div");
-    center.style.position = "absolute";
-    center.style.left = ((canvas.width / 2) - (stims.width / 2))+ "px";
-    center.style.top = ((canvas.height / 2) - (stims.height / 2))+ "px";
-    center.style.width = stims.width + "px"
-    center.style.height = stims.height + "px"
-    center.style.background = "black"
-
-    var divs = {
-      0: left,
-      1: center,
-      2: right
-    };
-
-    console.log(divs);
-
-    // bind divs to body
-    body.appendChild(left);
-    body.appendChild(center);
-    body.appendChild(right);
-
-    // context
-    var ctx = canvas.getContext("2d");
+    // create divs in which to draw stims in (positioning)
+    var divs = {};
+    factors = [1/10, 1/2, 9/10];
+    for (i in [0, 1, 2]){
+      divs[i] = document.createElement("div");
+      divs[i].style.left = (factors[i] * canvas.width - stims.width / 2) + "px";
+      divs[i].style.position = "absolute";
+      divs[i].style.top = ((canvas.height / 2) - (stims.height / 2))+ "px";
+      body.appendChild(divs[i]);
+    }
 
     var wait_drawTarget = function() {
       // draws target after time period set in timing.cue_off_target_on_interval and starts watching for keyboard response
@@ -107,20 +73,20 @@ jsPsych.plugins["posner-cueing"] = (function() {
 
     var drawCue = function() {
       // draws cue and removes it after time period set in trial.cue_duration
-      if (trial.condition == 0){
-        stim_file = target_file[trial.target_loc];
+      if (trial.condition == 0){  // valid trial: cue points to target
+        cue_file = target_file[trial.target_loc];
       }
-      else if (trial.condition == 1){
-        stim_file = target_file[(trial.target_loc + 1) % 2];
+      else if (trial.condition == 1){  // invalid trial: cue points away from target
+        cue_file = target_file[(trial.target_loc + 1) % 2];
       }
-      else {
-        stim_file = target_file[2];
+      else {  // neutral trial: neutral cue
+        cue_file = target_file[2];
       }
-
-      center.innerHTML = "<img src='jspsych/"+stim_file+"'></img>";
+      divs[1].innerHTML = "<img src='jspsych/"+cue_file+"'></img>";  // draw cue
 
       jsPsych.pluginAPI.setTimeout(function() {
-        center.innerHTML = "";
+        // let trial.cue_duration time pass, then remove cue from display and wait before drawing target
+        divs[1].innerHTML = "";
         wait_drawTarget();
       }, trial.cue_duration);
     }
