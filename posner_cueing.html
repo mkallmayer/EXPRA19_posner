@@ -25,6 +25,31 @@
             trial_duration: 1000
         }
 
+    timeline.push(
+        download = {
+            type: 'html-keyboard-response',
+            stimulus: "<img src='jspsych/img_left.png'></img>",
+            choices: jsPsych.NO_KEYS,
+            trial_duration: 1000
+        }
+    )
+    timeline.push(
+        download = {
+            type: 'html-keyboard-response',
+            stimulus: "<img src='jspsych/img_right.png'></img>",
+            choices: jsPsych.NO_KEYS,
+            trial_duration: 1000
+        }
+    )
+    timeline.push(
+        download = {
+            type: 'html-keyboard-response',
+            stimulus: "<img src='jspsych/img_cent.png'></img>",
+            choices: jsPsych.NO_KEYS,
+            trial_duration: 1000
+        }
+    )
+
     timeline.push(fix_cross);
 
     timeline.push(
@@ -32,7 +57,31 @@
             type: "posner-cueing",
             condition: 0,
             target_loc: 0,
-            cue_duration: 500,
+            cue_duration: 50,
+            cue_off_target_on_interval: 1000
+        }
+    );
+
+    timeline.push(fix_cross);
+
+    timeline.push(
+        trial = {
+            type: "posner-cueing",
+            condition: 1,
+            target_loc: 0,
+            cue_duration: 50,
+            cue_off_target_on_interval: 1000
+        }
+    );
+    
+    timeline.push(fix_cross);
+
+    timeline.push(
+        trial = {
+            type: "posner-cueing",
+            condition: 2,
+            target_loc: 1,
+            cue_duration: 50,
             cue_off_target_on_interval: 1000
         }
     );
