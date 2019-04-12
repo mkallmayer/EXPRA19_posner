@@ -8,6 +8,7 @@
     <script src="jspsych/jspsych.js"></script>
     <script src="jspsych/plugins/jspsych-posner-cueing.js"></script>
     <script src="jspsych/plugins/jspsych-html-keyboard-response.js"></script>
+    <script src="jspsych/plugins/jspsych-instructions.js"></script>
     <link href="jspsych/css/jspsych.css" rel="stylesheet" type="text/css">
     </link>
 </head>
@@ -43,6 +44,16 @@
     }
     */
 
+    timeline.push(
+        instructions = {
+            type: 'instructions',
+            pages: [
+                "Welcome to EXPRA 2019! Press the right arrow key [→] key to continue.",
+                "This is a placeholder for the instructions.",
+                "This is a placeholder for additional info."
+            ]
+        }
+    );
     timeline.push(fix_cross);
     timeline.push(fix_cross);
 
