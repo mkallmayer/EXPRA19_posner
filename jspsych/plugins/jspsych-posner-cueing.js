@@ -98,7 +98,7 @@ jsPsych.plugins["posner-cueing"] = (function() {
         if (trial.choices != jsPsych.NO_KEYS) {
           var keyboardListener = jsPsych.pluginAPI.getKeyboardResponse({
             callback_function: end_trial,
-            valid_responses: jsPsych.ALL_KEYS,
+            valid_responses: [32],
             rt_method: 'performance',
             persist: false,
             allow_held_key: false

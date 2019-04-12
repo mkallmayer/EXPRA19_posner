@@ -19,83 +19,42 @@
     var timeline = [];
 
     var fix_cross = {
-            type: 'html-keyboard-response',
-            stimulus: '<div style="font-size:60px;color:#ffffff">+</div>',
-            choices: jsPsych.NO_KEYS,
-            trial_duration: 1000
-        }
+        type: 'html-keyboard-response',
+        stimulus: '<div style="font-size:60px;color:#ffffff">+</div>',
+        choices: jsPsych.NO_KEYS,
+        trial_duration: 1000
+    };
 
-    timeline.push(
-        download = {
-            type: 'html-keyboard-response',
-            stimulus: "<img src='jspsych/img_left.png'></img>",
-            choices: jsPsych.NO_KEYS,
-            trial_duration: 1000
+    var trial_conditions = [];
+
+    var trial = {
+        type: "posner-cueing",
+        cue_duration: 50,
+        cue_off_target_on_interval: 1000
+    };
+
+    /*
+    for (cond in [0, 1, 2]){  // valid/invalid/neutral
+        for (targ in [0, 1]){  // target left/right
+            t = Object.assign({}, trial, {condition: cond, target_loc: targ});
+            trial_conditions.push(t);
+            timeline.push(t);
         }
-    )
-    timeline.push(
-        download = {
-            type: 'html-keyboard-response',
-            stimulus: "<img src='jspsych/img_right.png'></img>",
-            choices: jsPsych.NO_KEYS,
-            trial_duration: 1000
-        }
-    )
-    timeline.push(
-        download = {
-            type: 'html-keyboard-response',
-            stimulus: "<img src='jspsych/img_cent.png'></img>",
-            choices: jsPsych.NO_KEYS,
-            trial_duration: 1000
-        }
-    )
+    }
+    */
 
     timeline.push(fix_cross);
-
-    timeline.push(
-        trial = {
-            type: "posner-cueing",
-            condition: 0,
-            target_loc: 0,
-            cue_duration: 50,
-            cue_off_target_on_interval: 1000
-        }
-    );
-
-    timeline.push(fix_cross);
-
-    timeline.push(
-        trial = {
-            type: "posner-cueing",
-            condition: 1,
-            target_loc: 0,
-            cue_duration: 50,
-            cue_off_target_on_interval: 1000
-        }
-    );
-    
-    timeline.push(fix_cross);
-
-    timeline.push(
-        trial = {
-            type: "posner-cueing",
-            condition: 2,
-            target_loc: 1,
-            cue_duration: 50,
-            cue_off_target_on_interval: 1000
-        }
-    );
-
     timeline.push(fix_cross);
 
     jsPsych.init({
-            timeline: timeline,
-            //on_trial_start: jsPsych.pauseExperiment(),
-            on_trial_finish: function () {
-                setTimeout(jsPsych.resumeExperiment, 200);
-            }
+        timeline: timeline,
+        show_progress_bar: true,
+        //on_trial_start: jsPsych.pauseExperiment(),
+        on_trial_finish: function () {
+            setTimeout(jsPsych.resumeExperiment, 200);
+        }
 
-        });
+    });
 
 </script>
 
