@@ -9,8 +9,12 @@ jsPsych.plugins["posner-cueing"] = (function() {
   plugin.info = {
     name: "posner-cueing",
     parameters: {
-      condition: {
+      condition_congruency: {
         type: jsPsych.plugins.parameterType.INT, // 0 valid 1 invalid 2 neutral
+        default: undefined
+      },
+      condition_cuetype: {
+        type: jsPsych.plugins.parameterType.INT,  // 0 arrows 1 faces
         default: undefined
       },
       target_loc: {
@@ -23,7 +27,7 @@ jsPsych.plugins["posner-cueing"] = (function() {
       },
       cue_off_target_on_interval: {
         type: jsPsych.plugins.parameterType.INT,  // ms
-        default: 600
+        default: 1500
       }
     }
   }
@@ -37,10 +41,18 @@ jsPsych.plugins["posner-cueing"] = (function() {
     };
 
     var cue_files = {
-      0: "img_left.png",
-      1: "img_right.png",
-      2: "img_cent.png"
+      0: "cue_left_",
+      1: "cue_right_",
+      2: "cue_neut_"
     };
+
+    // use different files in face/arrow condition
+    if (trial.condition_cuetype == 0) {
+      var cue_suffix = "arr";
+    }
+    else {
+      var cue_suffix = "face";
+    }
 
     // create divs in which to draw stims in (positioning)
     var divs = {};
@@ -75,7 +87,7 @@ jsPsych.plugins["posner-cueing"] = (function() {
       jsPsych.pluginAPI.setTimeout(function() {
         divs[2*trial.target_loc].innerHTML = "<img src='jspsych/target.png'></img>";
         // start response thingy
-      }, trial.cue_off_target_on_interval);
+      }, trial.cue_off_target_on_interval + Math.floor(Math.random() * 500) - 500);
     }
 
     var drawCue = function() {
@@ -89,7 +101,7 @@ jsPsych.plugins["posner-cueing"] = (function() {
       else {  // neutral trial: neutral cue
         cue = cue_files[2];
       }
-      divs[1].innerHTML = "<img src='jspsych/"+cue+"'></img>";  // draw cue
+      divs[1].innerHTML = "<img src='jspsych/"+cue+cue_suffix+".png'></img>";  // draw cue
 
       jsPsych.pluginAPI.setTimeout(function() {
         // let trial.cue_duration time pass, then remove cue from display and wait before drawing target

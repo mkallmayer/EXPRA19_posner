@@ -31,18 +31,18 @@
     var trial = {
         type: "posner-cueing",
         cue_duration: 50,
-        cue_off_target_on_interval: 1000
+        cue_off_target_on_interval: 1500
     };
 
-    /*
-    for (cond in [0, 1, 2]){  // valid/invalid/neutral
-        for (targ in [0, 1]){  // target left/right
-            t = Object.assign({}, trial, {condition: cond, target_loc: targ});
-            trial_conditions.push(t);
-            timeline.push(t);
+    for (cond_cong in [0, 1, 2]) {  // valid/invalid/neutral
+            for (targ in [0, 1]) {  // target left/right
+                for (cond_cue in [0, 1]) {  // arrow/face
+                    t = Object.assign({}, trial, { condition_congruency: cond_cong, condition_cuetype: cond_cue, target_loc: targ });
+                    trial_conditions.push(t);
+                    //timeline.push(t);
+                }
+            }
         }
-    }
-    */
 
     timeline.push(
         instructions = {
@@ -54,8 +54,18 @@
             ]
         }
     );
+
     timeline.push(fix_cross);
+    
+    timeline.push(trial_conditions[2]);
+    
     timeline.push(fix_cross);
+
+    timeline.push(trial_conditions[4]);
+
+    timeline.push(fix_cross);
+
+    timeline.push(trial_conditions[3]);
 
     jsPsych.init({
         timeline: timeline,
