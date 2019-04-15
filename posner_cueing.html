@@ -9,6 +9,7 @@
     <script src="jspsych/plugins/jspsych-posner-cueing.js"></script>
     <script src="jspsych/plugins/jspsych-html-keyboard-response.js"></script>
     <script src="jspsych/plugins/jspsych-instructions.js"></script>
+    <script src="jspsych/plugins/jspsych-survey-text.js"></script>
     <link href="jspsych/css/jspsych.css" rel="stylesheet" type="text/css">
     </link>
 </head>
@@ -16,6 +17,25 @@
 <body></body>
 
 <script>
+
+    function download(filename, text) {
+        // creates downloadable file containing text arg with name filename on client-side and prompts download
+        var fileDL = document.createElement('a');
+        fileDL.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+        fileDL.setAttribute('download', filename);
+        fileDL.style.display = 'none';
+        document.body.appendChild(fileDL);
+        fileDL.click();
+        document.body.removeChild(fileDL);
+    }
+
+    var saveData = function() {
+        // get subject initials
+        var initials = JSON.parse(jsPsych.data.get().filter({trial_type: 'survey-text'}).values()[0].responses).Q0;
+        // append UNIX timestamp (to reduce probability of filename collisions)
+        var timestamp = Date.now();
+        download(initials+timestamp+".csv", jsPsych.data.get().filter({trial_type: 'posner-cueing'}).csv());
+    }
 
     var timeline = [];
 
@@ -45,6 +65,13 @@
         }
 
     timeline.push(
+        initials = {
+            type: 'survey-text',
+            questions: [{prompt: "Before you begin, please enter your initials"}]
+        }
+    );
+
+    timeline.push(
         instructions = {
             type: 'instructions',
             pages: [
@@ -65,11 +92,10 @@
     jsPsych.init({
         timeline: timeline,
         show_progress_bar: true,
-        //on_trial_start: jsPsych.pauseExperiment(),
         on_trial_finish: function () {
             setTimeout(jsPsych.resumeExperiment, 200);
-        }
-
+        },
+        on_finish: function() { saveData(); }
     });
 
 </script>

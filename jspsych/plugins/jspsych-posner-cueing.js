@@ -85,12 +85,8 @@ jsPsych.plugins["posner-cueing"] = (function() {
       for (i in [0, 1, 2]) {
         divs[i].innerHTML = "";
       }
-
       // save rt
       trial_data.rt = info.rt;
-
-      console.log(trial_data);
-
       // end trial after short timeout
       jsPsych.pluginAPI.setTimeout(function() {
         jsPsych.finishTrial(trial_data);
