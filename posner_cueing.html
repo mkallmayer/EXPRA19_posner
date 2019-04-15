@@ -73,9 +73,52 @@
             type: 'instructions',
             pages: [
                 "Welcome to EXPRA 2019! Press the right arrow key [→] key to continue.",
-                "This is a placeholder for the instructions.",
-                "This is a placeholder for additional info."
+                "<h1>Background (1/3)</h1>" + 
+                "A \"spotlight\" is a metaphor that nicely captures many characteristics of " +
+                "the focus of visual attention: It is a \"beam\" that is moved spatially, that may not " +
+                "be divided, and that enhances the detection of events falling within it." +
+                "<br> [→]",
+                "<h1>Background (2/3)</h1>" + 
+                "Some of the strongest evidence supporting the unitary concept of attention comes from the " +
+                "luminance-detection paradigm (e.g., Posner, 1980). In such experiments, subjects are first cued " +
+                "with the likely spatial location of a target and then respond as rapidly as possible when the target " +
+                "appears at any location in the display. For example, in a typical display, the stimuli are arranged " +
+                "horizontally with a fixation point in the center, which is also the location where the cue appears. The " +
+                "cue is either valid, correctly identifying the spatial location of the target, or invalid, incorrectly " +
+                "identifying the location of the target. Following the presentation of the cue, a single target stimulus " +
+                "is illuminated (usually about 1000 ms after the onset of the cue) and subjects respond as soon as they detect " +
+                "the target, regardless of its location. Relative to a neutral cue condition, responses are faster when the " +
+                "target appears in the cued location (a valid trial) and slower when the target appears in a non-cued location (an invalid trial). " +
+                "<br> [→]",
+                "<h1>Background (3/3)</h1>" + 
+                "Demonstrations of these patterns of results occur independently of eye movements. In other words, when an eye tracker verifies " +
+                "that your eyes are still fixed on the center, your focus of attention can be off to the right, or off to the left. While other " +
+                "interpretations of these findings are possible, they are consistent with the notion of a focused beam of attention that may be moved " +
+                "to distinct spatial locations - incorrectly in the case of an invalid trial and correctly in the case of a valid trial. " +
+                "<br> [→]",
+                "<h1>Instructions (1/2)</h1>" + 
+                "Start a trial by pressing the space bar. A fixation cross will appear in the middle of the window. Stare at it. A short time later, a " +
+                "cue will appear. Cues can EITHER be arrows pointing left, right or in both directions OR images of a face gazing left, right or straight ahead. " +
+                "<br>If the cue is pointing to the right, 80% of the time the target will appear on the right.<br>If the cue is pointing to the left, " +
+                "80% of the time, the target will appear on the left.<br>If the cue is pointing neither to the left, nor to the right exclusively, " +
+                "the target is equally likely to appear on the left or right. " +
+                "A short time after the cue disappears, a green circle will appear." +
+                "<br> [→]",
+                "<h1>Instructions (2/2)</h1>" + 
+                "Your task is to respond as quickly as possible when you see the circle appear, regardless of its location. To respond, press the [n] key. " +
+                "After pressing the n key, press the [space] bar to start the next trial. There are 200 trials." +
+                "<br> [→]",
+                "You can start the experiment by pressing the [→] key once more.<br>" +
+                "Remember: start a trial by pressing the <b>[space]</b> key and, once the trial has started, press the <b>[n]</b> as quickly as possible when you see the <b>green circle</b>" 
             ]
+        }
+    );
+
+    timeline.push(
+        empty = {
+            type: 'html-keyboard-response',
+            stimulus: '',
+            choices: [32]
         }
     );
 
