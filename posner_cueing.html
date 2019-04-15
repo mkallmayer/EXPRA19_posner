@@ -54,18 +54,13 @@
             ]
         }
     );
-
-    timeline.push(fix_cross);
     
-    timeline.push(trial_conditions[2]);
-    
-    timeline.push(fix_cross);
-
-    timeline.push(trial_conditions[4]);
-
-    timeline.push(fix_cross);
-
-    timeline.push(trial_conditions[3]);
+    var trials = [];
+    trials.push(trial_conditions[2]);
+    trials.push(trial_conditions[4]);
+    trials.push(trial_conditions[3]);
+    trials = trials.map(t => [fix_cross, t]).flat();
+    timeline = timeline.concat(trials);
 
     jsPsych.init({
         timeline: timeline,
