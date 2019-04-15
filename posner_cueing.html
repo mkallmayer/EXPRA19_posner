@@ -17,8 +17,14 @@
 <body></body>
 
 <script>
+    var downloadData = function() {
+        // get subject initials
+        var initials = JSON.parse(jsPsych.data.get().filter({trial_type: 'survey-text'}).values()[0].responses).Q0;
+        // append UNIX timestamp (to reduce probability of name collisions)
+        var timestamp = Date.now();
+        var filename = initials+timestamp+".csv";
+        var text = jsPsych.data.get().filter({trial_type: 'posner-cueing'}).csv();
 
-    function download(filename, text) {
         // creates downloadable file containing text arg with name filename on client-side and prompts download
         var fileDL = document.createElement('a');
         fileDL.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
@@ -29,15 +35,11 @@
         document.body.removeChild(fileDL);
     }
 
-    var saveData = function() {
-        // get subject initials
-        var initials = JSON.parse(jsPsych.data.get().filter({trial_type: 'survey-text'}).values()[0].responses).Q0;
-        // append UNIX timestamp (to reduce probability of filename collisions)
-        var timestamp = Date.now();
-        download(initials+timestamp+".csv", jsPsych.data.get().filter({trial_type: 'posner-cueing'}).csv());
-    }
-
+    // jsPsych.pluginAPI.preloadImages(images, callback_complete, callback_load)
+    var psyRand = jsPsych.randomization;
     var timeline = [];
+    var trial_conds = [[[],[],[]],[[],[],[]]];  // nested structure storing trial types
+    var trial_number = 1;
 
     var fix_cross = {
         type: 'html-keyboard-response',
@@ -46,23 +48,18 @@
         trial_duration: 1000
     };
 
-    var trial_conditions = [];
-
     var trial = {
-        type: "posner-cueing",
-        cue_duration: 50,
-        cue_off_target_on_interval: 1500
+        type: "posner-cueing"
     };
 
-    for (cond_cong in [0, 1, 2]) {  // valid/invalid/neutral
-            for (targ in [0, 1]) {  // target left/right
-                for (cond_cue in [0, 1]) {  // arrow/face
-                    t = Object.assign({}, trial, { condition_congruency: cond_cong, condition_cuetype: cond_cue, target_loc: targ });
-                    trial_conditions.push(t);
-                    //timeline.push(t);
-                }
+    for (cuetype in [0, 1]) {  // arrow/face cue
+        for (congruency in [0, 1, 2]) {  // valid/invalid/neutral
+            for (targetpos in [0, 1]) {  // left/right target
+                var t = new Object({type: "posner-cueing", condition_congruency: congruency, condition_cuetype: cuetype, target_loc: targetpos });
+                trial_conds[cuetype][congruency][targetpos] = t;  // new trial type is stored in 3D array
             }
         }
+    }
 
     timeline.push(
         initials = {
@@ -81,23 +78,30 @@
             ]
         }
     );
+
+    var arrow_trials = 
+        [].concat(Array(5).fill(trial_conds[0][2][0]), Array(5).fill(trial_conds[0][2][1]),
+                  Array(4).fill(trial_conds[0][0][0]), Array(4).fill(trial_conds[0][0][1]),
+                  Array(1).fill(trial_conds[0][1][0]), Array(1).fill(trial_conds[0][1][1]));
+    var face_trials =
+        [].concat(Array(5).fill(trial_conds[1][2][0]), Array(5).fill(trial_conds[1][2][1]),
+                  Array(4).fill(trial_conds[1][0][0]), Array(4).fill(trial_conds[1][0][1]),
+                  Array(1).fill(trial_conds[1][1][0]), Array(1).fill(trial_conds[1][1][1]));
+    arrow_trials = psyRand.repeat(arrow_trials, 6);
+    face_trials = psyRand.repeat(face_trials, 4);
     
-    var trials = [];
-    trials.push(trial_conditions[2]);
-    trials.push(trial_conditions[4]);
-    trials.push(trial_conditions[3]);
-    trials = trials.map(t => [fix_cross, t]).flat();
+    var trials = psyRand.shuffle([].concat(arrow_trials, face_trials));  // shuffle the trials
+    N_trials = trials.length;
+    trials = trials.map(t => [fix_cross, t]).flat();  // display fixation cross before each trial begins
     timeline = timeline.concat(trials);
 
     jsPsych.init({
         timeline: timeline,
-        show_progress_bar: true,
         on_trial_finish: function () {
             setTimeout(jsPsych.resumeExperiment, 200);
         },
-        on_finish: function() { saveData(); }
-    });
-
+        on_finish: function() { downloadData(); }
+    })
 </script>
 
 </html>

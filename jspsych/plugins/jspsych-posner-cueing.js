@@ -10,20 +10,17 @@ jsPsych.plugins["posner-cueing"] = (function() {
     name: "posner-cueing",
     parameters: {
       condition_congruency: {
-        type: jsPsych.plugins.parameterType.INT, // 0 valid 1 invalid 2 neutral
-        default: undefined
+        type: jsPsych.plugins.parameterType.INT // 0 valid 1 invalid 2 neutral
       },
       condition_cuetype: {
-        type: jsPsych.plugins.parameterType.INT,  // 0 arrows 1 faces
-        default: undefined
+        type: jsPsych.plugins.parameterType.INT  // 0 arrows 1 faces
       },
       target_loc: {
-        type: jsPsych.plugins.parameterType.INT,  // 0 left 1 right
-        default: undefined
+        type: jsPsych.plugins.parameterType.INT  // 0 left 1 right
       },
       cue_duration: {
         type: jsPsych.plugins.parameterType.INT,  // ms
-        default: 50
+        default: 100
       },
       target_jitter_min: {
         type: jsPsych.plugins.parameterType.INT,  // ms
@@ -50,7 +47,7 @@ jsPsych.plugins["posner-cueing"] = (function() {
     }
 
     var stim_size = {
-      // edit this if cue+stim size
+      // edit this if cue+stim size change
       width: 80,
       height: 80
     };
@@ -72,25 +69,38 @@ jsPsych.plugins["posner-cueing"] = (function() {
     // create divs in which to draw stims in (positioning)
     var divs = {};
     factors = [1/10, 1/2, 9/10];
-    for (i in [0, 1, 2]){
+    for (i=0; i<=2; i++) {
       divs[i] = document.createElement("div");
-      divs[i].style.left = (factors[i] * window.innerWidth - stim_size.width / 2) + "px";
       divs[i].style.position = "absolute";
-      divs[i].style.top = ((window.innerHeight / 2) - (stim_size.height / 2))+ "px";
+      divs[i].style.left = (factors[i] * window.innerWidth - (stim_size.width / 2)) + "px";
+      divs[i].style.top = (((window.innerHeight) / 2) - (stim_size.height / 2)) + "px";
       display_element.appendChild(divs[i]);
     }
 
-    var end_trial = function (info) {
+    var end_trial = function() {
       // clear the screen
-      for (i in [0, 1, 2]) {
+      for (i=0; i<3; i++) {
         divs[i].innerHTML = "";
       }
+      // end trial
+      jsPsych.finishTrial(trial_data);
+    }
+
+    var confirm = function(info) {
       // save rt
       trial_data.rt = info.rt;
-      // end trial after short timeout
-      jsPsych.pluginAPI.setTimeout(function() {
-        jsPsych.finishTrial(trial_data);
-      }, 500);
+      // increase trial count
+      trial_number++;
+
+      display_element.innerHTML += '<p>RT: ' + info.rt + 'ms</p><p>Press [space] to proceed to the next trial</p><p>Trial ' + trial_number + '/' + N_trials + '</p>';
+
+      var keyboardListener = jsPsych.pluginAPI.getKeyboardResponse({
+        callback_function: end_trial,
+        valid_responses: [32],
+        rt_method: 'performance',
+        persist: false,
+        allow_held_key: false
+      });
     }
 
     var wait_drawTarget = function() {
@@ -103,8 +113,8 @@ jsPsych.plugins["posner-cueing"] = (function() {
 
       // wait for response
       var keyboardListener = jsPsych.pluginAPI.getKeyboardResponse({
-          callback_function: end_trial,
-          valid_responses: [32],
+          callback_function: confirm,
+          valid_responses: ['n'],
           rt_method: 'performance',
           persist: false,
           allow_held_key: false
@@ -114,6 +124,7 @@ jsPsych.plugins["posner-cueing"] = (function() {
 
     var drawCue = function() {
       // draws cue and removes it after time period set in trial.cue_duration
+
       if (trial.condition_congruency == 0){  // valid trial: cue points towards target
         cue = cue_files[trial.target_loc];
       }
