@@ -91,6 +91,7 @@ jsPsych.plugins["posner-cueing"] = (function() {
       // save rt
       trial_data.rt = info.rt;
 
+      divs[1].innerHTML = "";
       display_element.innerHTML += '<p>RT: ' + info.rt + 'ms</p><p>Press <b>[space]</b> to proceed to the next trial</p><p>Trial ' + trial_number + '/' + N_trials + '</p>';
       // increase trial count
       trial_number++;
@@ -134,11 +135,7 @@ jsPsych.plugins["posner-cueing"] = (function() {
       }
       divs[1].innerHTML += "<img src='jspsych/"+cue+cue_suffix+".png'></img>";  // draw cue
 
-      jsPsych.pluginAPI.setTimeout(function() {
-        // let trial.cue_duration time pass, then remove cue from display and wait before drawing target
-        divs[1].innerHTML = "";
-        wait_drawTarget();
-      }, trial.cue_duration);
+      wait_drawTarget();
     }
     
     drawCue();

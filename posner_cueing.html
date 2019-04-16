@@ -133,13 +133,16 @@
         [].concat(Array(5).fill(trial_conds[1][2][0]), Array(5).fill(trial_conds[1][2][1]),
                   Array(4).fill(trial_conds[1][0][0]), Array(4).fill(trial_conds[1][0][1]),
                   Array(1).fill(trial_conds[1][1][0]), Array(1).fill(trial_conds[1][1][1]));
-    arrow_trials = psyRand.repeat(arrow_trials, 6);
-    face_trials = psyRand.repeat(face_trials, 4);
+    arrow_trials = psyRand.repeat(arrow_trials, /*6*/ 1);
+    face_trials = psyRand.repeat(face_trials, /*4*/ 1);
     
     var trials = psyRand.shuffle([].concat(arrow_trials, face_trials));  // shuffle the trials
     N_trials = trials.length;
     trials = trials.map(t => [fix_cross, t]).flat();  // display fixation cross before each trial begins
     timeline = timeline.concat(trials);
+
+    var short = [];
+    short.push()
 
     jsPsych.init({
         timeline: timeline,
