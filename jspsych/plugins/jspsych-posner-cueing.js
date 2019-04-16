@@ -43,8 +43,9 @@ jsPsych.plugins["posner-cueing"] = (function() {
       condition: conditions_con[trial.condition_congruency],
       cue_type: conditions_cue[trial.condition_cuetype],
       target_pos: target_locs[trial.target_loc],
-      cue_duration: trial.cue_duration
-    }
+      cue_duration: trial.cue_duration,
+      cue_target_time: Math.floor(Math.random() * (trial.target_jitter_max - trial.target_jitter_min) + trial.target_jitter_min)
+    };
 
     var stim_size = {
       // edit this if cue+stim size change
@@ -89,10 +90,10 @@ jsPsych.plugins["posner-cueing"] = (function() {
     var confirm = function(info) {
       // save rt
       trial_data.rt = info.rt;
+
+      display_element.innerHTML += '<p>RT: ' + info.rt + 'ms</p><p>Press <b>[space]</b> to proceed to the next trial</p><p>Trial ' + trial_number + '/' + N_trials + '</p>';
       // increase trial count
       trial_number++;
-
-      display_element.innerHTML += '<p>RT: ' + info.rt + 'ms</p><p>Press [space] to proceed to the next trial</p><p>Trial ' + trial_number + '/' + N_trials + '</p>';
 
       var keyboardListener = jsPsych.pluginAPI.getKeyboardResponse({
         callback_function: end_trial,
@@ -104,9 +105,6 @@ jsPsych.plugins["posner-cueing"] = (function() {
     }
 
     var wait_drawTarget = function() {
-      var cue_target_time = Math.floor(Math.random() * (trial.target_jitter_max - trial.target_jitter_min) + trial.target_jitter_min);
-      trial_data.cue_target_time = cue_target_time;  // store the time between cue offset and target onset in the data variable
-
       // draws target after time period set in timing.cue_off_target_on_interval and starts watching for keyboard response
       jsPsych.pluginAPI.setTimeout(function() {
         divs[2*trial.target_loc].innerHTML = "<img src='jspsych/target.png'></img>";
@@ -119,7 +117,7 @@ jsPsych.plugins["posner-cueing"] = (function() {
           persist: false,
           allow_held_key: false
         });
-      }, cue_target_time);
+      }, trial_data.cue_target_time);
     }
 
     var drawCue = function() {
@@ -134,7 +132,7 @@ jsPsych.plugins["posner-cueing"] = (function() {
       else {  // neutral trial: neutral cue
         cue = cue_files[2];
       }
-      divs[1].innerHTML = "<img src='jspsych/"+cue+cue_suffix+".png'></img>";  // draw cue
+      divs[1].innerHTML += "<img src='jspsych/"+cue+cue_suffix+".png'></img>";  // draw cue
 
       jsPsych.pluginAPI.setTimeout(function() {
         // let trial.cue_duration time pass, then remove cue from display and wait before drawing target
