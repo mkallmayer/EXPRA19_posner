@@ -15,6 +15,9 @@ jsPsych.plugins["posner-cueing"] = (function() {
       condition_cuetype: {
         type: jsPsych.plugins.parameterType.INT  // 0 arrows 1 faces
       },
+      condition_cuemood: {
+        type: jsPsych.plugins.parameterType.INT  // 0 negative 1 positive
+      },
       target_loc: {
         type: jsPsych.plugins.parameterType.INT  // 0 left 1 right
       },
@@ -47,11 +50,7 @@ jsPsych.plugins["posner-cueing"] = (function() {
       cue_target_time: Math.floor(Math.random() * (trial.target_jitter_max - trial.target_jitter_min) + trial.target_jitter_min)
     };
 
-    var stim_size = {
-      // edit this if cue+stim size change
-      width: 80,
-      height: 80
-    };
+    var stim_size = 160;
 
     var cue_files = {
       0: "cue_left_",
@@ -59,12 +58,20 @@ jsPsych.plugins["posner-cueing"] = (function() {
       2: "cue_neut_"
     };
 
-    // use different files in face/arrow condition
-    if (trial.condition_cuetype == 0) {
-      var cue_suffix = "arr";
+    // different files in negative/positive mood condition
+    if (trial.condition_cuemood == 0) {
+      var cue_suffix_mood = "neg";
     }
     else {
-      var cue_suffix = "face";
+      var cue_suffix_mood = "pos";
+    }
+
+    // use different files in face/arrow condition
+    if (trial.condition_cuetype == 0) {
+      var cue_suffix_type = "arr";
+    }
+    else {
+      var cue_suffix_type = "face";
     }
 
     // create divs in which to draw stims in (positioning)
@@ -73,8 +80,8 @@ jsPsych.plugins["posner-cueing"] = (function() {
     for (i=0; i<=2; i++) {
       divs[i] = document.createElement("div");
       divs[i].style.position = "absolute";
-      divs[i].style.left = (factors[i] * window.innerWidth - (stim_size.width / 2)) + "px";
-      divs[i].style.top = (((window.innerHeight) / 2) - (stim_size.height / 2)) + "px";
+      divs[i].style.left = (factors[i] * window.innerWidth - (stim_size / 2)) + "px";
+      divs[i].style.top = (((window.innerHeight) / 2) - (stim_size / 2)) + "px";
       display_element.appendChild(divs[i]);
     }
 
@@ -133,7 +140,7 @@ jsPsych.plugins["posner-cueing"] = (function() {
       else {  // neutral trial: neutral cue
         cue = cue_files[2];
       }
-      divs[1].innerHTML += "<img src='jspsych/"+cue+cue_suffix+".png'></img>";  // draw cue
+      divs[1].innerHTML += "<img src='jspsych/"+cue+cue_suffix_type+"_"+cue_suffix_mood+".png'></img>";  // draw cue
 
       wait_drawTarget();
     }
