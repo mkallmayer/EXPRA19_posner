@@ -40,11 +40,12 @@ jsPsych.plugins["posner-cueing"] = (function() {
   plugin.trial = function(display_element, trial) {
 
     var conditions_con = ["VALID", "INVALID", "NEUTRAL"];
-    var conditions_cue = ["ARROW", "FACE"];
     var target_locs = ["LEFT", "RIGHT"];
+    var cue_moods = ["NEG", "POS"];
 
     var trial_data = {
       condition: conditions_con[trial.condition_congruency],
+      cue_mood: cue_moods[trial.condition_cuemood],
       target_pos: target_locs[trial.target_loc],
       cue_duration: trial.cue_duration,
       cue_target_time: Math.floor(Math.random() * (trial.target_jitter_max - trial.target_jitter_min) + trial.target_jitter_min),
@@ -91,8 +92,9 @@ jsPsych.plugins["posner-cueing"] = (function() {
       // save rt
       trial_data.rt = info.rt;
 
-      divs[2*trial.target_loc].innerHTML = "";
-      divs[1].innerHTML = "";
+      for (d in [0,1,2]){
+        divs[d].innerHTML = "";
+      }
       if (trial.practice == 0){
         var total = N_trials;
       }
@@ -112,7 +114,7 @@ jsPsych.plugins["posner-cueing"] = (function() {
     }
 
     var wait_drawTarget = function() {
-      // draws target after time period set in timing.cue_off_target_on_interval and starts watching for keyboard response
+      // draws target after time period set in timing.cue_off_target_on_interval and starts waiting for keyboard response
       jsPsych.pluginAPI.setTimeout(function() {
         divs[2*trial.target_loc].innerHTML = "<img src='jspsych/target.png'></img>";
 
@@ -134,7 +136,7 @@ jsPsych.plugins["posner-cueing"] = (function() {
         cue = cue_files[trial.target_loc];
       }
       else if (trial.condition_congruency == 1){  // invalid trial: cue points away from target
-        cue = cue_files[(trial.target_loc + 1) % 2];
+        cue = cue_files[((trial.target_loc + 1) % 2)];
       }
       else {  // neutral trial: neutral cue
         cue = cue_files[2];

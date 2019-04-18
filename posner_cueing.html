@@ -35,8 +35,6 @@
         document.body.removeChild(fileDL);
     }
 
-    console.log()
-
     // preload all images used in the experiment
     jsPsych.pluginAPI.preloadImages(["target"]
                         .concat(["cue_left_", "cue_right_", "cue_neut_"]
@@ -47,7 +45,7 @@
                                     function(){ console.log("preloading images") })
     var psyRand = jsPsych.randomization;
     var timeline = [];
-    var trial_conds = [ [ [], [] ], [ [], [] ], [ [], [] ] ];
+    var trial_conds = Array.from({ length: 3}, _ => Array.from({ length: 2 }, _ => Array.from({ length: 2})));
     var trial_number = 1;
 
     var fix_cross = {
@@ -57,13 +55,14 @@
         trial_duration: 1000
     };
 
-    for (congruency in [0, 1, 2]) {  // valid/invalid/neutral
-        for (targetpos in [0, 1]) {  // left/right target
-            for (cuemood in [0, 1]) {  // negative/positive mood
-                var t = new Object({
+    for (congruency=0; congruency<=2; congruency++) {  // valid/invalid/neutral
+        var temp2 = [];
+        for (targetpos=0; targetpos<=1; targetpos++) {  // left/right target
+            var temp1 = [];
+            for (cuemood=0; cuemood<=1; cuemood++) {  // negative/positive mood
+                trial_conds[congruency][targetpos][cuemood] = new Object({
                     type: "posner-cueing", condition_congruency: congruency, condition_cuemood: cuemood, target_loc: targetpos
                 });
-                trial_conds[congruency][targetpos][cuemood] = t;  // new trial type is stored in 3D array
             }
         }
     }
@@ -110,7 +109,7 @@
                 "<br><b>[→]</b>",
                 "<h1>Instructions (2/2)</h1>" + 
                 "Your task is to respond as quickly as possible when you see the circle appear, regardless of its location. To respond, press the <b>[n]</b> key. " +
-                "After pressing the <b>[n]</b> key, press the <b>[space]</b> bar to start the next trial. There are 208 trials." +
+                "After pressing the <b>[n]</b> key, press the <b>[space]</b> bar to start the next trial. There are 200 trials, but you will start out with a few training trials." +
                 "<br><b>[→]</b>",
                 "You can start with a few training trials by pressing the <b>[→]</b> key once more.<br>" +
                 "Remember: press the <b>[n]</b> as quickly as possible when you see the <b>green circle</b>"
@@ -121,20 +120,20 @@
     timeline.push(
         empty = {
             type: 'html-keyboard-response',
-            stimulus: 'Press <b>[space]</b> to start the first trial.',
+            stimulus: 'Press <b>[space]</b> to start the training trials.',
             choices: [32]
         }
     );
 
     var practice_trials = psyRand.shuffle([trial_conds[0][0][0], trial_conds[0][1][1], trial_conds[1][1][0],
-                                           trial_conds[1][1][1], trial_conds[2][0][0], trial_conds[2][1][1]]);
+                                            trial_conds[1][1][1], trial_conds[2][0][0], trial_conds[2][1][1]]);
     var N_practice = practice_trials.length;
     practice_trials = practice_trials.map(t => Object.assign({}, t, { practice: 1 })).map(t => [fix_cross, t]).flat();
 
     timeline = timeline.concat(practice_trials);
     timeline.push( inter = {
         type: 'html-keyboard-response',
-        stimulus: 'You can start the experiment by pressing the space bar once more.',
+        stimulus: 'You can start the experiment by pressing the <b>[space]</b> bar once more.',
         choices: [32]
     });
 
