@@ -23,7 +23,7 @@
         // append UNIX timestamp (to reduce probability of name collisions)
         var timestamp = Date.now();
         var filename = initials+timestamp+".csv";
-        var text = jsPsych.data.get().filter({trial_type: 'posner-cueing'}).csv();
+        var text = jsPsych.data.get().filter({trial_type: 'posner-cueing', practice: 0}).csv();
 
         // creates downloadable file containing text arg with name filename on client-side and prompts download
         var fileDL = document.createElement('a');
@@ -55,10 +55,6 @@
         stimulus: '<div style="font-size:60px;color:#ffffff">+</div>',
         choices: jsPsych.NO_KEYS,
         trial_duration: 1000
-    };
-
-    var trial = {
-        type: "posner-cueing"
     };
 
     for (congruency in [0, 1, 2]) {  // valid/invalid/neutral
@@ -109,16 +105,15 @@
                 "<br><b>[→]</b>",
                 "<h1>Instructions (1/2)</h1>" + 
                 "Start a trial by pressing the <b>[space]</b> bar. A fixation cross will appear in the middle of the window. Stare at it. A short time later, a " +
-                "cue will appear. Cues can EITHER be arrows pointing left, right or in both directions OR images of a face gazing left, right or straight ahead. " +
+                "cue will appear. Cues are images of a face gazing left, right or straight ahead. " +
                 "A short time after the cue disappears, a green circle will appear on either the left or the right side of the screen." +
                 "<br><b>[→]</b>",
                 "<h1>Instructions (2/2)</h1>" + 
                 "Your task is to respond as quickly as possible when you see the circle appear, regardless of its location. To respond, press the <b>[n]</b> key. " +
                 "After pressing the <b>[n]</b> key, press the <b>[space]</b> bar to start the next trial. There are 208 trials." +
                 "<br><b>[→]</b>",
-                "You can start the experiment by pressing the <b>[→]</b> key once more.<br>" +
-                "Remember: start a trial by pressing the <b>[space]</b> key and, once the trial has started, press the <b>[n]</b> as quickly as possible " +
-                "when you see the <b>green circle</b>" 
+                "You can start with a few training trials by pressing the <b>[→]</b> key once more.<br>" +
+                "Remember: press the <b>[n]</b> as quickly as possible when you see the <b>green circle</b>"
             ]
         }
     );
@@ -131,25 +126,24 @@
         }
     );
 
-    // var factors = [[0,1], [0,1,2], [0,1], [0,1]];
-    // var arrow_neg_trials = [].concat(Array(13).fill(trial_conds[0][2][0][0]), Array(13).fill(trial_conds[0][2][1][0]),
-    //                         Array(10).fill(trial_conds[0][0][0][0]), Array(10).fill(trial_conds[0][0][1][0]),
-    //                         Array(3).fill(trial_conds[0][1][0][0]), Array(3).fill(trial_conds[0][1][1][0]));
-    // var arrow_pos_trials = [].concat(Array(13).fill(trial_conds[0][2][0][1]), Array(13).fill(trial_conds[0][2][1][1]),
-    //                         Array(10).fill(trial_conds[0][0][0][1]), Array(10).fill(trial_conds[0][0][1][1]),
-    //                         Array(3).fill(trial_conds[0][1][0][1]), Array(3).fill(trial_conds[0][1][1][1]));
-    // var face_neg_trials  = [].concat(Array(13).fill(trial_conds[1][2][0][0]), Array(13).fill(trial_conds[1][2][1][0]),
-    //                         Array(10).fill(trial_conds[1][0][0][0]), Array(10).fill(trial_conds[1][0][1][0]),
-    //                         Array(3).fill(trial_conds[1][1][0][0]), Array(3).fill(trial_conds[1][1][1][0]));
-    // var face_pos_trials  = [].concat(Array(13).fill(trial_conds[1][2][0][1]), Array(13).fill(trial_conds[1][2][1][1]),
-    //                         Array(10).fill(trial_conds[1][0][0][1]), Array(10).fill(trial_conds[1][0][1][1]),
-    //                         Array(3).fill(trial_conds[1][1][0][1]), Array(3).fill(trial_conds[1][1][1][1]));
+    var practice_trials = psyRand.shuffle([trial_conds[0][0][0], trial_conds[0][1][1], trial_conds[1][1][0],
+                                           trial_conds[1][1][1], trial_conds[2][0][0], trial_conds[2][1][1]]);
+    var N_practice = practice_trials.length;
+    practice_trials = practice_trials.map(t => Object.assign({}, t, { practice: 1 })).map(t => [fix_cross, t]).flat();
+
+    timeline = timeline.concat(practice_trials);
+    timeline.push( inter = {
+        type: 'html-keyboard-response',
+        stimulus: 'You can start the experiment by pressing the space bar once more.',
+        choices: [32]
+    });
+
     var neg_trials = [].concat(Array(25).fill(trial_conds[2][0][0]), Array(25).fill(trial_conds[2][1][0]),
-                               Array(20).fill(trial_conds[0][0][0]), Array(20).fill(trial_conds[0][1][0]),
-                               Array(5).fill(trial_conds[1][0][0]), Array(5).fill(trial_conds[1][1][0]));
+                               Array(15).fill(trial_conds[0][0][0]), Array(15).fill(trial_conds[0][1][0]),
+                               Array(10).fill(trial_conds[1][0][0]), Array(10).fill(trial_conds[1][1][0]));
     var pos_trials = [].concat(Array(25).fill(trial_conds[2][0][1]), Array(25).fill(trial_conds[2][1][1]),
-                               Array(20).fill(trial_conds[0][0][1]), Array(20).fill(trial_conds[0][1][1]),
-                               Array(5).fill(trial_conds[1][0][1]), Array(5).fill(trial_conds[1][1][1]));
+                               Array(15).fill(trial_conds[0][0][1]), Array(15).fill(trial_conds[0][1][1]),
+                               Array(10).fill(trial_conds[1][0][1]), Array(10).fill(trial_conds[1][1][1]));
 
     var trials = psyRand.shuffle([].concat(neg_trials, pos_trials));  // shuffle the trials
     N_trials = trials.length;

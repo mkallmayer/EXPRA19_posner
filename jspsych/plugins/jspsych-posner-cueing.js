@@ -27,8 +27,12 @@ jsPsych.plugins["posner-cueing"] = (function() {
         default: 1000
       },
       target_jitter_max: {
-        type: jsPsych.plugins.parameterType.INT, // ms
+        type: jsPsych.plugins.parameterType.INT,  // ms
         default: 2000
+      },
+      practice: {
+        type: jsPsych.plugins.parameterType.INT,  // bool
+        default: 0
       }
     }
   }
@@ -43,7 +47,8 @@ jsPsych.plugins["posner-cueing"] = (function() {
       condition: conditions_con[trial.condition_congruency],
       target_pos: target_locs[trial.target_loc],
       cue_duration: trial.cue_duration,
-      cue_target_time: Math.floor(Math.random() * (trial.target_jitter_max - trial.target_jitter_min) + trial.target_jitter_min)
+      cue_target_time: Math.floor(Math.random() * (trial.target_jitter_max - trial.target_jitter_min) + trial.target_jitter_min),
+      is_practice: trial.practice
     };
 
     var stim_size = 160;
@@ -88,9 +93,20 @@ jsPsych.plugins["posner-cueing"] = (function() {
 
       divs[2*trial.target_loc].innerHTML = "";
       divs[1].innerHTML = "";
-      display_element.innerHTML += '<p>RT: ' + Math.floor(info.rt) + 'ms</p><p>Trial ' + trial_number + '/' + N_trials + '</p>';
+      if (trial.practice == 0){
+        var total = N_trials;
+      }
+      else {
+        var total = N_practice;
+      }
+      display_element.innerHTML += '<p>RT: ' + Math.floor(info.rt) + 'ms</p><p>Trial ' + trial_number + '/' + total + '</p>';
       // increase trial count
-      trial_number++;
+      if (trial_number == N_practice){
+        trial_number = 1;
+      }
+      else {
+        trial_number++;
+      }
     
       jsPsych.pluginAPI.setTimeout( function() { end_trial(); }, 1000);
     }
