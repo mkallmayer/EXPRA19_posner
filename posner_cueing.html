@@ -47,7 +47,7 @@
                                     function(){ console.log("preloading images") })
     var psyRand = jsPsych.randomization;
     var timeline = [];
-    var trial_conds = [ [ [ [], [] ], [ [], [] ], [ [], [] ] ], [ [ [], [] ], [ [], [] ], [ [], [] ] ]];
+    var trial_conds = [ [ [], [] ], [ [], [] ], [ [], [] ] ];
     var trial_number = 1;
 
     var fix_cross = {
@@ -61,15 +61,13 @@
         type: "posner-cueing"
     };
 
-    for (cuetype in [0, 1]) {  // arrow/face cue
-        for (congruency in [0, 1, 2]) {  // valid/invalid/neutral
-            for (targetpos in [0, 1]) {  // left/right target
-                for (cuemood in [0, 1]) {  // negative/positive mood
-                    var t = new Object({
-                        type: "posner-cueing", condition_congruency: congruency, condition_cuetype: cuetype, condition_cuemood: cuemood, target_loc: targetpos
-                    });
-                    trial_conds[cuetype][congruency][targetpos][cuemood] = t;  // new trial type is stored in 3D array
-                }
+    for (congruency in [0, 1, 2]) {  // valid/invalid/neutral
+        for (targetpos in [0, 1]) {  // left/right target
+            for (cuemood in [0, 1]) {  // negative/positive mood
+                var t = new Object({
+                    type: "posner-cueing", condition_congruency: congruency, condition_cuemood: cuemood, target_loc: targetpos
+                });
+                trial_conds[congruency][targetpos][cuemood] = t;  // new trial type is stored in 3D array
             }
         }
     }
@@ -134,20 +132,26 @@
     );
 
     // var factors = [[0,1], [0,1,2], [0,1], [0,1]];
-    var arrow_neg_trials = [].concat(Array(13).fill(trial_conds[0][2][0][0]), Array(13).fill(trial_conds[0][2][1][0]),
-                            Array(10).fill(trial_conds[0][0][0][0]), Array(10).fill(trial_conds[0][0][1][0]),
-                            Array(3).fill(trial_conds[0][1][0][0]), Array(3).fill(trial_conds[0][1][1][0]));
-    var arrow_pos_trials = [].concat(Array(13).fill(trial_conds[0][2][0][1]), Array(13).fill(trial_conds[0][2][1][1]),
-                            Array(10).fill(trial_conds[0][0][0][1]), Array(10).fill(trial_conds[0][0][1][1]),
-                            Array(3).fill(trial_conds[0][1][0][1]), Array(3).fill(trial_conds[0][1][1][1]));
-    var face_neg_trials  = [].concat(Array(13).fill(trial_conds[1][2][0][0]), Array(13).fill(trial_conds[1][2][1][0]),
-                            Array(10).fill(trial_conds[1][0][0][0]), Array(10).fill(trial_conds[1][0][1][0]),
-                            Array(3).fill(trial_conds[1][1][0][0]), Array(3).fill(trial_conds[1][1][1][0]));
-    var face_pos_trials  = [].concat(Array(13).fill(trial_conds[1][2][0][1]), Array(13).fill(trial_conds[1][2][1][1]),
-                            Array(10).fill(trial_conds[1][0][0][1]), Array(10).fill(trial_conds[1][0][1][1]),
-                            Array(3).fill(trial_conds[1][1][0][1]), Array(3).fill(trial_conds[1][1][1][1]));
-    
-    var trials = psyRand.shuffle([].concat(arrow_neg_trials, arrow_pos_trials, face_neg_trials, face_pos_trials));  // shuffle the trials
+    // var arrow_neg_trials = [].concat(Array(13).fill(trial_conds[0][2][0][0]), Array(13).fill(trial_conds[0][2][1][0]),
+    //                         Array(10).fill(trial_conds[0][0][0][0]), Array(10).fill(trial_conds[0][0][1][0]),
+    //                         Array(3).fill(trial_conds[0][1][0][0]), Array(3).fill(trial_conds[0][1][1][0]));
+    // var arrow_pos_trials = [].concat(Array(13).fill(trial_conds[0][2][0][1]), Array(13).fill(trial_conds[0][2][1][1]),
+    //                         Array(10).fill(trial_conds[0][0][0][1]), Array(10).fill(trial_conds[0][0][1][1]),
+    //                         Array(3).fill(trial_conds[0][1][0][1]), Array(3).fill(trial_conds[0][1][1][1]));
+    // var face_neg_trials  = [].concat(Array(13).fill(trial_conds[1][2][0][0]), Array(13).fill(trial_conds[1][2][1][0]),
+    //                         Array(10).fill(trial_conds[1][0][0][0]), Array(10).fill(trial_conds[1][0][1][0]),
+    //                         Array(3).fill(trial_conds[1][1][0][0]), Array(3).fill(trial_conds[1][1][1][0]));
+    // var face_pos_trials  = [].concat(Array(13).fill(trial_conds[1][2][0][1]), Array(13).fill(trial_conds[1][2][1][1]),
+    //                         Array(10).fill(trial_conds[1][0][0][1]), Array(10).fill(trial_conds[1][0][1][1]),
+    //                         Array(3).fill(trial_conds[1][1][0][1]), Array(3).fill(trial_conds[1][1][1][1]));
+    var neg_trials = [].concat(Array(25).fill(trial_conds[2][0][0]), Array(25).fill(trial_conds[2][1][0]),
+                               Array(20).fill(trial_conds[0][0][0]), Array(20).fill(trial_conds[0][1][0]),
+                               Array(5).fill(trial_conds[1][0][0]), Array(5).fill(trial_conds[1][1][0]));
+    var pos_trials = [].concat(Array(25).fill(trial_conds[2][0][1]), Array(25).fill(trial_conds[2][1][1]),
+                               Array(20).fill(trial_conds[0][0][1]), Array(20).fill(trial_conds[0][1][1]),
+                               Array(5).fill(trial_conds[1][0][1]), Array(5).fill(trial_conds[1][1][1]));
+
+    var trials = psyRand.shuffle([].concat(neg_trials, pos_trials));  // shuffle the trials
     N_trials = trials.length;
     trials = trials.map(t => [fix_cross, t]).flat();  // display fixation cross before each trial begins
     timeline = timeline.concat(trials);

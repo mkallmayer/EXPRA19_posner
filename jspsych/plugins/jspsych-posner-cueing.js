@@ -12,9 +12,6 @@ jsPsych.plugins["posner-cueing"] = (function() {
       condition_congruency: {
         type: jsPsych.plugins.parameterType.INT // 0 valid 1 invalid 2 neutral
       },
-      condition_cuetype: {
-        type: jsPsych.plugins.parameterType.INT  // 0 arrows 1 faces
-      },
       condition_cuemood: {
         type: jsPsych.plugins.parameterType.INT  // 0 negative 1 positive
       },
@@ -44,7 +41,6 @@ jsPsych.plugins["posner-cueing"] = (function() {
 
     var trial_data = {
       condition: conditions_con[trial.condition_congruency],
-      cue_type: conditions_cue[trial.condition_cuetype],
       target_pos: target_locs[trial.target_loc],
       cue_duration: trial.cue_duration,
       cue_target_time: Math.floor(Math.random() * (trial.target_jitter_max - trial.target_jitter_min) + trial.target_jitter_min)
@@ -64,14 +60,6 @@ jsPsych.plugins["posner-cueing"] = (function() {
     }
     else {
       var cue_suffix_mood = "pos";
-    }
-
-    // use different files in face/arrow condition
-    if (trial.condition_cuetype == 0) {
-      var cue_suffix_type = "arr";
-    }
-    else {
-      var cue_suffix_type = "face";
     }
 
     // create divs in which to draw stims in (positioning)
@@ -98,18 +86,13 @@ jsPsych.plugins["posner-cueing"] = (function() {
       // save rt
       trial_data.rt = info.rt;
 
+      divs[2*trial.target_loc].innerHTML = "";
       divs[1].innerHTML = "";
-      display_element.innerHTML += '<p>RT: ' + info.rt + 'ms</p><p>Press <b>[space]</b> to proceed to the next trial</p><p>Trial ' + trial_number + '/' + N_trials + '</p>';
+      display_element.innerHTML += '<p>RT: ' + Math.floor(info.rt) + 'ms</p><p>Trial ' + trial_number + '/' + N_trials + '</p>';
       // increase trial count
       trial_number++;
-
-      var keyboardListener = jsPsych.pluginAPI.getKeyboardResponse({
-        callback_function: end_trial,
-        valid_responses: [32],
-        rt_method: 'performance',
-        persist: false,
-        allow_held_key: false
-      });
+    
+      jsPsych.pluginAPI.setTimeout( function() { end_trial(); }, 1000);
     }
 
     var wait_drawTarget = function() {
@@ -140,7 +123,7 @@ jsPsych.plugins["posner-cueing"] = (function() {
       else {  // neutral trial: neutral cue
         cue = cue_files[2];
       }
-      divs[1].innerHTML += "<img src='jspsych/"+cue+cue_suffix_type+"_"+cue_suffix_mood+".png'></img>";  // draw cue
+      divs[1].innerHTML += "<img src='jspsych/"+cue+"face_"+cue_suffix_mood+".png'></img>";  // draw cue
 
       wait_drawTarget();
     }
