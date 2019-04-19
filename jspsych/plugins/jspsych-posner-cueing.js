@@ -84,7 +84,7 @@ jsPsych.plugins["posner-cueing"] = (function() {
       }
       display_element.innerHTML += rt+'<p>Trial ' + trial_number + '/' + total + '</p>';
       // increase trial count
-      if (trial_number == N_practice){  // reset after practice trials
+      if (trial_number == N_practice && trial.practice == 1){  // reset after practice trials
         trial_number = 1;
       } else {
         trial_number++;

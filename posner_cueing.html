@@ -23,7 +23,7 @@
         // append UNIX timestamp (to reduce probability of name collisions)
         var timestamp = Date.now();
         var filename = initials+timestamp+".csv";
-        var text = jsPsych.data.get().filter({trial_type: 'posner-cueing', practice: 0}).csv();
+        var text = jsPsych.data.get().filter({trial_type: 'posner-cueing', is_practice: 0}).csv();
 
         // creates downloadable file containing text arg with name filename on client-side and prompts download
         var fileDL = document.createElement('a');
