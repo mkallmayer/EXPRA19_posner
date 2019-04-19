@@ -23,7 +23,7 @@
         // append UNIX timestamp (to reduce probability of name collisions)
         var timestamp = Date.now();
         var filename = initials+timestamp+".csv";
-        var text = jsPsych.data.get().filter({trial_type: 'posner-cueing'}).csv();
+        var text = jsPsych.data.get().filter({trial_type: 'posner-cueing', practice: 0}).csv();
 
         // creates downloadable file containing text arg with name filename on client-side and prompts download
         var fileDL = document.createElement('a');
@@ -36,12 +36,16 @@
     }
 
     // preload all images used in the experiment
-    jsPsych.pluginAPI.preloadImages(["target"].concat(["cue_left_", "cue_right_", "cue_neut_"].map(v => [v+"face", v+"arr"]).flat()).map(u => "jspsych/"+u+".png"), 
+    jsPsych.pluginAPI.preloadImages(["target"]
+                        .concat(["cue_left_", "cue_right_", "cue_neut_"]
+                        .map(v => [v+"face_", v+"arr_"]).flat()
+                        .map(w => [w+"neg", w+"pos"]).flat())
+                        .map(u => "jspsych/"+u+".png"), 
                                     function(){ console.log("image preloading successful"); },
                                     function(){ console.log("preloading images") })
     var psyRand = jsPsych.randomization;
     var timeline = [];
-    var trial_conds = [[[],[],[]],[[],[],[]]];  // nested structure storing trial types
+    var trial_conds = Array.from({ length: 3}, _ => Array.from({ length: 2 }, _ => Array.from({ length: 2})));
     var trial_number = 1;
 
     var fix_cross = {
@@ -51,15 +55,14 @@
         trial_duration: 1000
     };
 
-    var trial = {
-        type: "posner-cueing"
-    };
-
-    for (cuetype in [0, 1]) {  // arrow/face cue
-        for (congruency in [0, 1, 2]) {  // valid/invalid/neutral
-            for (targetpos in [0, 1]) {  // left/right target
-                var t = new Object({type: "posner-cueing", condition_congruency: congruency, condition_cuetype: cuetype, target_loc: targetpos });
-                trial_conds[cuetype][congruency][targetpos] = t;  // new trial type is stored in 3D array
+    for (congruency=0; congruency<=2; congruency++) {  // valid/invalid/neutral
+        var temp2 = [];
+        for (targetpos=0; targetpos<=1; targetpos++) {  // left/right target
+            var temp1 = [];
+            for (cuemood=0; cuemood<=1; cuemood++) {  // negative/positive mood
+                trial_conds[congruency][targetpos][cuemood] = new Object({
+                    type: "posner-cueing", condition_congruency: congruency, condition_cuemood: cuemood, target_loc: targetpos
+                });
             }
         }
     }
@@ -80,7 +83,7 @@
                 "A \"spotlight\" is a metaphor that nicely captures many characteristics of " +
                 "the focus of visual attention: It is a \"beam\" that is moved spatially, that may not " +
                 "be divided, and that enhances the detection of events falling within it." +
-                "<br> <b>[→]</b>",
+                "<br><b>[→]</b>",
                 "<h1>Background (2/3)</h1>" + 
                 "Some of the strongest evidence supporting the unitary concept of attention comes from the " +
                 "luminance-detection paradigm (e.g., Posner, 1980). In such experiments, subjects are first cued " +
@@ -92,27 +95,24 @@
                 "is illuminated (usually about 1000 ms after the onset of the cue) and subjects respond as soon as they detect " +
                 "the target, regardless of its location. Relative to a neutral cue condition, responses are faster when the " +
                 "target appears in the cued location (a valid trial) and slower when the target appears in a non-cued location (an invalid trial). " +
-                "<br> <b>[→]</b>",
+                "<br><b>[→]</b>",
                 "<h1>Background (3/3)</h1>" + 
                 "Demonstrations of these patterns of results occur independently of eye movements. In other words, when an eye tracker verifies " +
                 "that your eyes are still fixed on the center, your focus of attention can be off to the right, or off to the left. While other " +
                 "interpretations of these findings are possible, they are consistent with the notion of a focused beam of attention that may be moved " +
                 "to distinct spatial locations - incorrectly in the case of an invalid trial and correctly in the case of a valid trial. " +
-                "<br> <b>[→]</b>",
+                "<br><b>[→]</b>",
                 "<h1>Instructions (1/2)</h1>" + 
                 "Start a trial by pressing the <b>[space]</b> bar. A fixation cross will appear in the middle of the window. Stare at it. A short time later, a " +
-                "cue will appear. Cues can EITHER be arrows pointing left, right or in both directions OR images of a face gazing left, right or straight ahead. " +
-                "<br>If the cue is pointing to the right, 80% of the time the target will appear on the right.<br>If the cue is pointing to the left, " +
-                "80% of the time, the target will appear on the left.<br>If the cue is pointing neither to the left, nor to the right exclusively, " +
-                "the target is equally likely to appear on the left or right. " +
-                "A short time after the cue disappears, a green circle will appear." +
-                "<br> <b>[→]</b>",
+                "cue will appear. Cues are images of a face gazing left, right or straight ahead. " +
+                "A short time after the cue disappears, a green circle will appear on either the left or the right side of the screen." +
+                "<br><b>[→]</b>",
                 "<h1>Instructions (2/2)</h1>" + 
                 "Your task is to respond as quickly as possible when you see the circle appear, regardless of its location. To respond, press the <b>[n]</b> key. " +
-                "After pressing the <b>[n]</b> key, press the <b>[space]</b> bar to start the next trial. There are 200 trials." +
-                "<br> <b>[→]</b>",
-                "You can start the experiment by pressing the <b>[→]</b> key once more.<br>" +
-                "Remember: start a trial by pressing the <b>[space]</b> key and, once the trial has started, press the <b>[n]</b> as quickly as possible when you see the <b>green circle</b>" 
+                "After pressing the <b>[n]</b> key, press the <b>[space]</b> bar to start the next trial. There are 200 trials, but you will start out with a few training trials." +
+                "<br><b>[→]</b>",
+                "You can start with a few training trials by pressing the <b>[→]</b> key once more.<br>" +
+                "Remember: press the <b>[n]</b> as quickly as possible when you see the <b>green circle</b>"
             ]
         }
     );
@@ -120,29 +120,40 @@
     timeline.push(
         empty = {
             type: 'html-keyboard-response',
-            stimulus: '',
+            stimulus: 'Press <b>[space]</b> to start the training trials.',
             choices: [32]
         }
     );
 
-    var arrow_trials = 
-        [].concat(Array(5).fill(trial_conds[0][2][0]), Array(5).fill(trial_conds[0][2][1]),
-                  Array(4).fill(trial_conds[0][0][0]), Array(4).fill(trial_conds[0][0][1]),
-                  Array(1).fill(trial_conds[0][1][0]), Array(1).fill(trial_conds[0][1][1]));
-    var face_trials =
-        [].concat(Array(5).fill(trial_conds[1][2][0]), Array(5).fill(trial_conds[1][2][1]),
-                  Array(4).fill(trial_conds[1][0][0]), Array(4).fill(trial_conds[1][0][1]),
-                  Array(1).fill(trial_conds[1][1][0]), Array(1).fill(trial_conds[1][1][1]));
-    arrow_trials = psyRand.repeat(arrow_trials, /*6*/ 1);
-    face_trials = psyRand.repeat(face_trials, /*4*/ 1);
-    
-    var trials = psyRand.shuffle([].concat(arrow_trials, face_trials));  // shuffle the trials
+    var practice_trials = psyRand.shuffle([trial_conds[0][0][0], trial_conds[0][1][1], trial_conds[1][1][0],
+                                            trial_conds[1][1][1], trial_conds[2][0][0], trial_conds[2][1][1]]);
+    var N_practice = practice_trials.length;
+    practice_trials = practice_trials.map(t => Object.assign({}, t, { practice: 1 })).map(t => [fix_cross, t]).flat();
+
+    timeline = timeline.concat(practice_trials);
+    timeline.push( inter = {
+        type: 'html-keyboard-response',
+        stimulus: 'You can start the experiment by pressing the <b>[space]</b> bar once more.',
+        choices: [32]
+    });
+
+    var neg_trials = [].concat(Array(25).fill(trial_conds[2][0][0]), Array(25).fill(trial_conds[2][1][0]),
+                               Array(15).fill(trial_conds[0][0][0]), Array(15).fill(trial_conds[0][1][0]),
+                               Array(10).fill(trial_conds[1][0][0]), Array(10).fill(trial_conds[1][1][0]));
+    var pos_trials = [].concat(Array(25).fill(trial_conds[2][0][1]), Array(25).fill(trial_conds[2][1][1]),
+                               Array(15).fill(trial_conds[0][0][1]), Array(15).fill(trial_conds[0][1][1]),
+                               Array(10).fill(trial_conds[1][0][1]), Array(10).fill(trial_conds[1][1][1]));
+
+    var trials = psyRand.shuffle([].concat(neg_trials, pos_trials));  // shuffle the trials
     N_trials = trials.length;
     trials = trials.map(t => [fix_cross, t]).flat();  // display fixation cross before each trial begins
     timeline = timeline.concat(trials);
-
-    var short = [];
-    short.push()
+    timeline.push( 
+        finished = {
+            type: 'html-keyboard-response',
+            stimulus: 'Thank you for participating! You can download your data (stored in CSV format) by pressing the <b>[space]</b> key and accepting the download.',
+            choices: [32]
+    } );
 
     jsPsych.init({
         timeline: timeline,
