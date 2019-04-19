@@ -88,7 +88,7 @@ jsPsych.plugins["posner-cueing"] = (function() {
       jsPsych.finishTrial(trial_data);
     }
 
-    var confirm = function(info) {
+    var feedback = function(info) {
       // save rt
       trial_data.rt = info.rt;
 
@@ -118,14 +118,14 @@ jsPsych.plugins["posner-cueing"] = (function() {
       jsPsych.pluginAPI.setTimeout(function() {
         divs[2*trial.target_loc].innerHTML = "<img src='jspsych/target.png'></img>";
 
-      // wait for response
-      var keyboardListener = jsPsych.pluginAPI.getKeyboardResponse({
-          callback_function: confirm,
-          valid_responses: ['n'],
-          rt_method: 'performance',
-          persist: false,
-          allow_held_key: false
-        });
+        // wait for response
+        var keyboardListener = jsPsych.pluginAPI.getKeyboardResponse({
+            callback_function: feedback,
+            valid_responses: ['n'],
+            rt_method: 'performance',
+            persist: false,
+            allow_held_key: false
+          });
       }, trial_data.cue_target_time);
     }
 
