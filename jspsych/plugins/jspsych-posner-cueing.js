@@ -1,5 +1,6 @@
 /*
- * positionsner Cueing plugin
+ * Posner Cueing plugin
+ * This script executes a single trial of the Posner attention cueing experiment
  */
 
 jsPsych.plugins["posner-cueing"] = (function() {
@@ -42,6 +43,13 @@ jsPsych.plugins["posner-cueing"] = (function() {
     var conditions_con = ["VALID", "INVALID", "NEUTRAL"];
     var target_locs = ["LEFT", "RIGHT"];
     var cue_moods = ["NEG", "POS"];
+    var cue_files = {
+      0: "cue_left_",
+      1: "cue_right_",
+      2: "cue_neut_"
+    };
+    var stim_size = 160;
+    var cue_suffix_mood = cue_moods[trial.condition_cuemood].toLowerCase();  // get filename suffix dependent on mood
 
     var trial_data = {
       condition: conditions_con[trial.condition_congruency],
@@ -49,24 +57,9 @@ jsPsych.plugins["posner-cueing"] = (function() {
       target_pos: target_locs[trial.target_loc],
       cue_duration: trial.cue_duration,
       cue_target_time: Math.floor(Math.random() * (trial.target_jitter_max - trial.target_jitter_min) + trial.target_jitter_min),
-      is_practice: trial.practice
+      is_practice: trial.practice,
+      rt: null
     };
-
-    var stim_size = 160;
-
-    var cue_files = {
-      0: "cue_left_",
-      1: "cue_right_",
-      2: "cue_neut_"
-    };
-
-    // different files in negative/positive mood condition
-    if (trial.condition_cuemood == 0) {
-      var cue_suffix_mood = "neg";
-    }
-    else {
-      var cue_suffix_mood = "pos";
-    }
 
     // create divs in which to draw stims in (positioning)
     var divs = {};
@@ -79,59 +72,60 @@ jsPsych.plugins["posner-cueing"] = (function() {
       display_element.appendChild(divs[i]);
     }
 
-    var end_trial = function() {
-      // clear the screen
-      for (i=0; i<3; i++) {
-        divs[i].innerHTML = "";
-      }
-      // end trial
-      jsPsych.finishTrial(trial_data);
-    }
-
-    var feedback = function(info) {
-      // save rt
-      trial_data.rt = info.rt;
-
+    var feedback = function(rt) {
+      // provide feedback to the user
       for (d in [0,1,2]){
         divs[d].innerHTML = "";
       }
       if (trial.practice == 0){
         var total = N_trials;
-      }
-      else {
+      } else {
         var total = N_practice;
       }
-      display_element.innerHTML += '<p>RT: ' + Math.floor(info.rt) + 'ms</p><p>Trial ' + trial_number + '/' + total + '</p>';
+      display_element.innerHTML += rt+'<p>Trial ' + trial_number + '/' + total + '</p>';
       // increase trial count
-      if (trial_number == N_practice){
+      if (trial_number == N_practice){  // reset after practice trials
         trial_number = 1;
-      }
-      else {
+      } else {
         trial_number++;
       }
-    
-      jsPsych.pluginAPI.setTimeout( function() { end_trial(); }, 1000);
+      // finish this trial and submit data to main experiment loop
+      jsPsych.pluginAPI.setTimeout( function() { jsPsych.finishTrial(trial_data); }, 1000);
+    }
+
+    var response_after_target_onset = function(info) {
+      // save rt
+      trial_data.rt = info.rt;
+      feedback('<p>RT: ' + Math.floor(info.rt) + 'ms</p>');
+    }
+
+    var response_before_target_onset = function(info) {
+      jsPsych.pluginAPI.clearAllTimeouts();
+      jsPsych.pluginAPI.cancelAllKeyboardResponses();
+      // rt -1 (signify invalid response)
+      trial_data.rt = -1;
+      feedback('<p>You responded too early!</p>');
     }
 
     var wait_drawTarget = function() {
-      // draws target after time period set in timing.cue_off_target_on_interval and starts waiting for keyboard response
+      // draws target after time period set in trial.cue_target_time and calls keyboard listener
       jsPsych.pluginAPI.setTimeout(function() {
         divs[2*trial.target_loc].innerHTML = "<img src='jspsych/target.png'></img>";
+        jsPsych.pluginAPI.cancelAllKeyboardResponses();  // cancel 'too early' listener
 
         // wait for response
-        var keyboardListener = jsPsych.pluginAPI.getKeyboardResponse({
-            callback_function: feedback,
+        jsPsych.pluginAPI.getKeyboardResponse({
+            callback_function: response_after_target_onset,
             valid_responses: ['n'],
             rt_method: 'performance',
             persist: false,
             allow_held_key: false
-          });
+        });
       }, trial_data.cue_target_time);
     }
 
     var drawCue = function() {
       // draws cue and removes it after time period set in trial.cue_duration
-
       if (trial.condition_congruency == 0){  // valid trial: cue points towards target
         cue = cue_files[trial.target_loc];
       }
@@ -142,13 +136,18 @@ jsPsych.plugins["posner-cueing"] = (function() {
         cue = cue_files[2];
       }
       divs[1].innerHTML += "<img src='jspsych/"+cue+"face_"+cue_suffix_mood+".png'></img>";  // draw cue
-
+      
+      jsPsych.pluginAPI.getKeyboardResponse({
+        callback_function: response_before_target_onset,
+        valid_responses: ['n'],
+        rt_method: 'performance',
+        persist: false,
+        allow_held_key: false
+      });
+      
       wait_drawTarget();
     }
-    
-    drawCue();
-  
+    drawCue();  // set the trial off
   };
-
   return plugin;
 })();
