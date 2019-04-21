@@ -144,14 +144,21 @@
                                Array(15).fill(trial_conds[0][0][1]), Array(15).fill(trial_conds[0][1][1]),
                                Array(10).fill(trial_conds[1][0][1]), Array(10).fill(trial_conds[1][1][1]));
 
-    var trials = psyRand.shuffle([].concat(neg_trials, pos_trials));  // shuffle the trials
-    N_trials = trials.length;
-    trials = trials.map(t => [fix_cross, t]).flat();  // display fixation cross before each trial begins
-    timeline = timeline.concat(trials);
+    var trials_1 = psyRand.shuffle([].concat(neg_trials, pos_trials));  // shuffle the trials
+    N_trials = trials_1.length;
+    var trials_2 = trials_1.splice(100).map(t => [fix_cross, t]).flat();  // splice trials and fixation cross to second half of the trials
+    trials_1 = trials_1.map(t => [fix_cross, t]).flat();  // add fixation cross to first half of the trials
+    var pause = {
+        type: 'html-keyboard-response',
+        stimulus: 'Take a short break if you want and press the <b>[space]</b> bar to continue the experiment',
+        choices: [32]
+    };
+    timeline = timeline.concat(trials_1, pause, trials_2);
     timeline.push( 
         finished = {
             type: 'html-keyboard-response',
-            stimulus: 'Thank you for participating! You can download your data (stored in CSV format) by pressing the <b>[space]</b> key and accepting the download.',
+            stimulus: "Thank you for participating! You can download your data (stored in CSV format) by clicking the button below.<br><br>"
+                       + "<input id='clickMe' type='button' value='Download' onclick='downloadData();' />",
             choices: [32]
     } );
 
@@ -160,7 +167,6 @@
         on_trial_finish: function () {
             setTimeout(jsPsych.resumeExperiment, 200);
         },
-        on_finish: function() { downloadData(); }
     })
 </script>
 
